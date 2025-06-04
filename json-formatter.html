@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON 格式化工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2d2d30;
+            padding: 15px 20px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .format-btn {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .format-btn:hover {
+            background: #1177bb;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        .left-panel {
+            width: 25%;
+            background: #1e1e1e;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .right-panel {
+            width: 75%;
+            background: #252526;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-width: 300px;
+        }
+
+        .resizer {
+            width: 4px;
+            background: #3e3e42;
+            cursor: col-resize;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .resizer:hover {
+            background: #007acc;
+        }
+
+        .resizer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -2px;
+            right: -2px;
+            bottom: 0;
+        }
+
+        .panel-header {
+            background: #2d2d30;
+            padding: 10px 15px;
+            border-bottom: 1px solid #3e3e42;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cccccc;
+        }
+
+        .json-input {
+            width: 100%;
+            height: calc(100% - 45px);
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .json-output {
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: calc(100% - 45px);
+        }
+
+        .json-key {
+            color: #9cdcfe;
+        }
+
+        .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #b5cea8;
+        }
+
+        .json-boolean {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #569cd6;
+        }
+
+        .json-bracket {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .json-comma {
+            color: #d4d4d4;
+        }
+
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .collapsible::before {
+            content: '▼';
+            display: inline-block;
+            margin-right: 5px;
+            transition: transform 0.2s;
+            color: #808080;
+        }
+
+        .collapsible.collapsed::before {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            margin-left: 20px;
+        }
+
+        .collapsible-content.hidden {
+            display: none;
+        }
+
+        .json-line {
+            margin: 2px 0;
+        }
+
+        .error-message {
+            color: #f48771;
+            background: #5a1d1d;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #f48771;
+        }
+
+        .placeholder {
+            color: #6a6a6a;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* 滚动条样式 */
+        .right-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .right-panel::-webkit-scrollbar-track {
+            background: #2d2d30;
+        }
+
+        .right-panel::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 4px;
+        }
+
+        .right-panel::-webkit-scrollbar-thumb:hover {
+            background: #4f4f4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>JSON 格式化工具</h1>
+        <button class="format-btn" onclick="formatJSON()">格式化</button>
+    </div>
+    
+    <div class="container">
+        <div class="left-panel">
+            <div class="panel-header">原始 JSON 数据</div>
+            <textarea 
+                class="json-input" 
+                id="jsonInput" 
+                placeholder="请在此处粘贴或输入您的 JSON 数据..."
+                oninput="autoFormat()"
+            ></textarea>
+        </div>
+        
+        <div class="resizer" id="resizer"></div>
+
+        <div class="right-panel">
+            <div class="panel-header">格式化后的 JSON 数据</div>
+            <div class="json-output" id="jsonOutput">
+                <div class="placeholder">在左侧输入 JSON 数据后，格式化结果将显示在这里</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoFormatTimeout;
+
+        function autoFormat() {
+            clearTimeout(autoFormatTimeout);
+            autoFormatTimeout = setTimeout(() => {
+                formatJSON();
+            }, 500);
+        }
+
+        function formatJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            const output = document.getElementById('jsonOutput');
+            
+            if (!input) {
+                output.innerHTML = '<div class="placeholder">在左侧输入 JSON 数据后，格式化结果将显示在这里</div>';
+                return;
+            }
+            
+            try {
+                const parsed = JSON.parse(input);
+                const formatted = formatJSONRecursive(parsed, 0);
+                output.innerHTML = formatted;
+                
+                // 添加折叠功能
+                addCollapsibleListeners();
+            } catch (error) {
+                output.innerHTML = `<div class="error-message">JSON 格式错误: ${error.message}</div>`;
+            }
+        }
+
+        function formatJSONRecursive(obj, depth) {
+            const indent = '  '.repeat(depth);
+            const nextIndent = '  '.repeat(depth + 1);
+            
+            if (obj === null) {
+                return '<span class="json-null">null</span>';
+            }
+            
+            if (typeof obj === 'string') {
+                return `<span class="json-string">"${escapeHtml(obj)}"</span>`;
+            }
+            
+            if (typeof obj === 'number') {
+                return `<span class="json-number">${obj}</span>`;
+            }
+            
+            if (typeof obj === 'boolean') {
+                return `<span class="json-boolean">${obj}</span>`;
+            }
+            
+            if (Array.isArray(obj)) {
+                if (obj.length === 0) {
+                    return '<span class="json-bracket">[]</span>';
+                }
+                
+                let result = '<div class="json-line">';
+                result += `<span class="collapsible"><span class="json-bracket">[</span></span>`;
+                result += '<div class="collapsible-content">';
+                
+                obj.forEach((item, index) => {
+                    result += '<div class="json-line">';
+                    result += nextIndent;
+                    result += formatJSONRecursive(item, depth + 1);
+                    if (index < obj.length - 1) {
+                        result += '<span class="json-comma">,</span>';
+                    }
+                    result += '</div>';
+                });
+                
+                result += '</div>';
+                result += '<div class="json-line">';
+                result += indent + '<span class="json-bracket">]</span>';
+                result += '</div>';
+                result += '</div>';
+                
+                return result;
+            }
+            
+            if (typeof obj === 'object') {
+                const keys = Object.keys(obj);
+                if (keys.length === 0) {
+                    return '<span class="json-bracket">{}</span>';
+                }
+                
+                let result = '<div class="json-line">';
+                result += `<span class="collapsible"><span class="json-bracket">{</span></span>`;
+                result += '<div class="collapsible-content">';
+                
+                keys.forEach((key, index) => {
+                    result += '<div class="json-line">';
+                    result += nextIndent;
+                    result += `<span class="json-key">"${escapeHtml(key)}"</span>: `;
+                    result += formatJSONRecursive(obj[key], depth + 1);
+                    if (index < keys.length - 1) {
+                        result += '<span class="json-comma">,</span>';
+                    }
+                    result += '</div>';
+                });
+                
+                result += '</div>';
+                result += '<div class="json-line">';
+                result += indent + '<span class="json-bracket">}</span>';
+                result += '</div>';
+                result += '</div>';
+                
+                return result;
+            }
+            
+            return String(obj);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function addCollapsibleListeners() {
+            const collapsibles = document.querySelectorAll('.collapsible');
+            collapsibles.forEach(collapsible => {
+                collapsible.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    const content = this.nextElementSibling;
+                    if (content && content.classList.contains('collapsible-content')) {
+                        this.classList.toggle('collapsed');
+                        content.classList.toggle('hidden');
+                    }
+                });
+            });
+        }
+
+        // 页面加载完成后不填充示例数据
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面初始化完成，保持空白状态
+            initResizer();
+        });
+
+        function initResizer() {
+            const resizer = document.getElementById('resizer');
+            const leftPanel = document.querySelector('.left-panel');
+            const rightPanel = document.querySelector('.right-panel');
+            const container = document.querySelector('.container');
+
+            let isResizing = false;
+
+            resizer.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+
+                // 防止文本选择
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+
+                const containerRect = container.getBoundingClientRect();
+                const containerWidth = containerRect.width;
+                const mouseX = e.clientX - containerRect.left;
+
+                // 计算左面板的宽度百分比
+                let leftWidth = (mouseX / containerWidth) * 100;
+
+                // 限制最小和最大宽度
+                const minLeftWidth = 15; // 最小15%
+                const maxLeftWidth = 70; // 最大70%
+
+                leftWidth = Math.max(minLeftWidth, Math.min(maxLeftWidth, leftWidth));
+                const rightWidth = 100 - leftWidth;
+
+                // 应用新的宽度
+                leftPanel.style.width = leftWidth + '%';
+                rightPanel.style.width = rightWidth + '%';
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            });
+
+            // 防止拖拽时选中文本
+            resizer.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+            });
+        }
+    </script>
+</body>
+</html>
