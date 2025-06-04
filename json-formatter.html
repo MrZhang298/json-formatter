@@ -197,20 +197,24 @@
         }
 
         /* 滚动条样式 */
-        .right-panel::-webkit-scrollbar {
+        .right-panel::-webkit-scrollbar,
+        .json-input::-webkit-scrollbar {
             width: 8px;
         }
 
-        .right-panel::-webkit-scrollbar-track {
+        .right-panel::-webkit-scrollbar-track,
+        .json-input::-webkit-scrollbar-track {
             background: #2d2d30;
         }
 
-        .right-panel::-webkit-scrollbar-thumb {
+        .right-panel::-webkit-scrollbar-thumb,
+        .json-input::-webkit-scrollbar-thumb {
             background: #424242;
             border-radius: 4px;
         }
 
-        .right-panel::-webkit-scrollbar-thumb:hover {
+        .right-panel::-webkit-scrollbar-thumb:hover,
+        .json-input::-webkit-scrollbar-thumb:hover {
             background: #4f4f4f;
         }
     </style>
@@ -298,8 +302,7 @@
                     return '<span class="json-bracket">[]</span>';
                 }
                 
-                let result = '<div class="json-line">';
-                result += `<span class="collapsible"><span class="json-bracket">[</span></span>`;
+                let result = `<span class="collapsible"><span class="json-bracket">[</span></span>`;
                 result += '<div class="collapsible-content">';
                 
                 obj.forEach((item, index) => {
@@ -313,11 +316,8 @@
                 });
                 
                 result += '</div>';
-                result += '<div class="json-line">';
-                result += indent + '<span class="json-bracket">]</span>';
-                result += '</div>';
-                result += '</div>';
-                
+                result += '<span class="json-bracket">]</span>';
+
                 return result;
             }
             
@@ -327,8 +327,7 @@
                     return '<span class="json-bracket">{}</span>';
                 }
                 
-                let result = '<div class="json-line">';
-                result += `<span class="collapsible"><span class="json-bracket">{</span></span>`;
+                let result = `<span class="collapsible"><span class="json-bracket">{</span></span>`;
                 result += '<div class="collapsible-content">';
                 
                 keys.forEach((key, index) => {
@@ -343,11 +342,8 @@
                 });
                 
                 result += '</div>';
-                result += '<div class="json-line">';
-                result += indent + '<span class="json-bracket">}</span>';
-                result += '</div>';
-                result += '</div>';
-                
+                result += '<span class="json-bracket">}</span>';
+
                 return result;
             }
             
