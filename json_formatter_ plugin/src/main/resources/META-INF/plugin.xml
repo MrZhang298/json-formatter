@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <id>org.example.jsonformatter</id>
+    <idea-version since-build="213" until-build="250.*"/>
+    <name>JSON Formatter</name>
+    <description>格式化JSON数据的IDEA插件</description>
+    <vendor>Meituan AI Assistant</vendor>
+    <depends>com.intellij.modules.platform</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="JSON Formatter"
+                    anchor="right"
+                    factoryClass="org.example.JsonFormatterToolWindowFactory"
+                    icon="AllIcons.FileTypes.Json"
+                    secondary="false"/>
+    </extensions>
+    <actions>
+        <action id="org.example.jsonformatter.FormatJsonAction"
+                class="org.example.FormatJsonAction"
+                text="JSON 格式化工具"
+                description="格式化JSON数据">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
