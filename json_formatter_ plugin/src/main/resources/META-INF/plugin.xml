@@ -4,7 +4,7 @@
     <idea-version since-build="213" until-build="250.*"/>
     <name>JSON Formatter</name>
     <description>格式化JSON数据的IDEA插件</description>
-    <vendor>Meituan AI Assistant</vendor>
+    <vendor>yysgm</vendor>
     <depends>com.intellij.modules.platform</depends>
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="JSON Formatter"

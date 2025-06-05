@@ -9,6 +9,10 @@ build/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/.gitignore
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
 *.iws
 *.iml
 *.ipr
@@ -31,7 +35,6 @@ bin/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 

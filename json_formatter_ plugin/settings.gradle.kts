@@ -1,2 +1,2 @@
-rootProject.name = "IDEACHAJIAN"
+rootProject.name = "json_formatter_ plugin"
 
