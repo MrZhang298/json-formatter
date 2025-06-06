@@ -24,8 +24,14 @@ public class JsonFormatterPanel extends JPanel {
         outputArea.setEditable(false);
         // 输出区域背景跟随IDEA主题，移除固定白色背景
         outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        // 创建输出区域的滚动面板，禁用水平滚动
+        JScrollPane outputScrollPane = new JScrollPane(outputArea);
+        outputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        outputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                new JScrollPane(inputArea), new JScrollPane(outputArea));
+                new JScrollPane(inputArea), outputScrollPane);
         splitPane.setResizeWeight(0.5);
         // 分隔条颜色跟随IDEA主题，不设置自定义颜色
 
@@ -35,7 +41,7 @@ public class JsonFormatterPanel extends JPanel {
         btnPanel.add(formatBtn);
 
         // 移除字体大小下拉框，直接用outputArea
-        splitPane.setBottomComponent(new JScrollPane(outputArea));
+        splitPane.setBottomComponent(outputScrollPane);
 
         add(splitPane, BorderLayout.CENTER);
         add(btnPanel, BorderLayout.SOUTH);
@@ -65,7 +71,7 @@ public class JsonFormatterPanel extends JPanel {
             // 使用SwingUtilities.invokeLater避免EDT异常
             javax.swing.SwingUtilities.invokeLater(() -> {
                 try {
-                    outputArea.setText("<html><head><style>body{font-family:monospace;font-size:12px !important;margin:0;padding:5px;}</style></head><body>" + formatted + "</body></html>");
+                    outputArea.setText("<html><head><style>body{font-family:monospace;font-size:12px !important;margin:0;padding:5px;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;}</style></head><body>" + formatted + "</body></html>");
                 } catch (Exception e) {
                     // 如果HTML渲染失败，回退到纯文本
                     outputArea.setContentType("text/plain");
@@ -81,7 +87,7 @@ public class JsonFormatterPanel extends JPanel {
             outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
             javax.swing.SwingUtilities.invokeLater(() -> {
                 try {
-                    outputArea.setText("<html><head><style>body{font-family:monospace;font-size:12px !important;margin:0;padding:5px;color:#f48771;}</style></head><body><div style='background:#5a1d1d;padding:10px;border-radius:4px;border-left:4px solid #f48771;'>" + escapeHtml(ex.getMessage()) + "</div></body></html>");
+                    outputArea.setText("<html><head><style>body{font-family:monospace;font-size:12px !important;margin:0;padding:5px;color:#f48771;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;}</style></head><body><div style='background:#5a1d1d;padding:10px;border-radius:4px;border-left:4px solid #f48771;'>" + escapeHtml(ex.getMessage()) + "</div></body></html>");
                 } catch (Exception e) {
                     // 如果HTML渲染失败，回退到纯文本
                     outputArea.setContentType("text/plain");
