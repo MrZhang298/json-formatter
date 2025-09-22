@@ -1,19 +1,19 @@
 ## 1.安装nginx&jenkins镜像
-`docker pull nginx`  
-`docker pull jenkins/jenkins:lts`
+    docker pull nginx  
+    docker pull jenkins/jenkins:lts
 
 ## 2.创建文件夹
-`mkdir /docker`  
-`mkdir /docker/compose`  
-`mkdir /docker/jenkins_home`  
-`mkdir /docker/nginx`  
-`mkdir /docker/nginx/conf`  
-`mkdir /docker/html`  
-`mkdir /docker/html/dev`  
+    mkdir /docker  
+    mkdir /docker/compose  
+    mkdir /docker/jenkins_home  
+    mkdir /docker/nginx  
+    mkdir /docker/nginx/conf  
+    mkdir /docker/html  
+    mkdir /docker/html/dev  
 
 ## 3.创建两个文件docker-compose.yml、nginx.conf
-  cd /docker/compose && vim docker-compose.yml
-  cd /docker/nginx/conf && vim nginx.conf
+    cd /docker/compose && vim docker-compose.yml  
+    cd /docker/nginx/conf && vim nginx.conf
 
 ## 4.docker-compose.yml配置
     version: '3'
@@ -52,6 +52,57 @@
   启动docker`systemctl start docker`  
   进入到对应目录`cd /docker/compose`  
   执行命令`docker-compose up -d`  
+
+## 6.nginx.conf
+    # nginx.conf 例：
+    user  nginx;
+    worker_processes  1;
+     
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+     
+     
+    events {
+        worker_connections  1024;
+    }
+     
+     
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+     
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+     
+        access_log  /var/log/nginx/access.log  main;
+     
+        sendfile        on;
+        #tcp_nopush     on;
+     
+        keepalive_timeout  65;
+     
+        gzip  on;
+    
+        # dev环境
+        server {
+            # 监听的端口
+            listen  8001;
+            server_name  localhost;
+            # 设置日志
+            # access_log  logs/dev.access.log  main;
+            
+            #定位到index.html
+               location / {
+                   #linux下HTML文件夹,就是你的前端项目文件夹 与docker配置中volumes地址一致
+                   root  /docker/html/dev/dist;
+                   #输入网址（server_name：port）后，默认的访问页面
+                   index  index.html;
+                   try_files $uri $uri/ /index.html;
+               }
+        }
+        # include /etc/nginx/conf.d/*.conf;
+    }
 
 ## 6.配置jenkins部署步骤
 1. 下载nodjs、publish over SSH插件  
