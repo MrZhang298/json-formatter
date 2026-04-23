@@ -1,0 +1,22 @@
+{
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "workbench.colorTheme": "Default Light Modern",
+    "editor.wordWrap": "on",
+    "editor.scrollbar.verticalScrollbarSize": 10,
+    "workbench.activityBar.orientation": "vertical",
+    "typescript.experimental.useTsgo": true,
+    "editor.stickyScroll.enabled": false,
+    "workbench.tree.indent": 18,
+    "workbench.tree.expandMode": "doubleClick",
+    "workbench.tree.enableStickyScroll": false,
+    "editor.fontFamily": "JetBrainsMono-Medium",
+    "workbench.iconTheme": "material-icon-theme",
+    "window.newWindowDimensions": "maximized",
+    "explorer.autoReveal": false,
+    "workbench.editor.enablePreview": false,
+    "editor.scrollBeyondLastLine": false,
+    "window.zoomLevel": 0.7,
+    "gitlens.currentLine.enabled": false,
+    "gitlens.codeLens.enabled": false
+}
